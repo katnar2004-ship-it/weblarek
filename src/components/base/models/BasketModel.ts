@@ -1,54 +1,35 @@
-import { IBuyer, TPayment } from "../../../types";
+import { IProduct } from "../../../types";
 
-export class BuyerModel {
-  private _payment: TPayment | null = null;
-  private _address: string = '';
-  private _phone: string = '';
-  private _email: string = '';
+export class BasketModel {
+  private items: IProduct[] = [];
 
-  setBuyerField(field: Partial<IBuyer>): void {
-    if (field.payment !== undefined) this._payment = field.payment;
-    if (field.address !== undefined) this._address = field.address;
-    if (field.phone !== undefined) this._phone = field.phone;
-    if (field.email !== undefined) this._email = field.email;
+  getItems(): IProduct[] {
+    return this.items;
   }
 
-  getBuyerData(): IBuyer {
-    return {
-      payment: this._payment as TPayment,
-      address: this._address,
-      phone: this._phone,
-      email: this._email,
-    };
+  addItem(product: IProduct): void {
+    this.items.push(product);
+  }
+
+  removeItem(productId: string): void {
+    this.items = this.items.filter(item => item.id !== productId);
   }
 
   clear(): void {
-    this._payment = null;
-    this._address = '';
-    this._phone = '';
-    this._email = '';
+    this.items = [];
   }
 
-  validate(): Partial<Record<keyof IBuyer, string>> {
-    const errors: Partial<Record<keyof IBuyer, string>> = {};
+  getTotalPrice(): number {
+    return this.items.reduce((total, item) => {
+      return total + (item.price ?? 0);
+    }, 0);
+  }
 
-    if (!this._payment) {
-      errors.payment = 'Не выбран тип оплаты';
-    }
+  getItemCount(): number {
+    return this.items.length;
+  }
 
-    if (!this._email || this._email.trim() === '') {
-      errors.email = 'Укажите email';
-    }
-
-    if (!this._phone || this._phone.trim() === '') {
-      errors.phone = 'Укажите телефон';
-    }
-
-    if (!this._address || this._address.trim() === '') {
-      errors.address = 'Укажите адрес';
-    }
-
-    return errors;
+  hasItem(productId: string): boolean {
+    return this.items.some(item => item.id === productId);
   }
 }
-

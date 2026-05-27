@@ -1,35 +1,54 @@
-import { IProduct } from "../../../types";
+import { IBuyer, TPayment, TBuyerValidationErrors } from "../../../types";
 
-export class BasketModel {
-  private _items: IProduct[] = [];
+export class BuyerModel {
+  private payment: TPayment | null = null;
+  private address: string = '';
+  private phone: string = '';
+  private email: string = '';
 
-  getItems(): IProduct[] {
-    return this._items;
+  setBuyerField(field: Partial<IBuyer>): void {
+    if (field.payment !== undefined) this.payment = field.payment;
+    if (field.address !== undefined) this.address = field.address;
+    if (field.phone !== undefined) this.phone = field.phone;
+    if (field.email !== undefined) this.email = field.email;
   }
 
-  addItem(product: IProduct): void {
-    this._items.push(product);
-  }
-
-  removeItem(productId: string): void {
-    this._items = this._items.filter(item => item.id !== productId);
+  getBuyerData(): IBuyer {
+    return {
+      payment: this.payment,
+      address: this.address,
+      phone: this.phone,
+      email: this.email,
+    };
   }
 
   clear(): void {
-    this._items = [];
+    this.payment = null;
+    this.address = '';
+    this.phone = '';
+    this.email = '';
   }
 
-  getTotalPrice(): number {
-    return this._items.reduce((total, item) => {
-      return total + (item.price ?? 0);
-    }, 0);
-  }
+  validate(): TBuyerValidationErrors {
+    const errors: TBuyerValidationErrors = {};
 
-  getItemCount(): number {
-    return this._items.length;
-  }
+    if (!this.payment) {
+      errors.payment = 'Не выбран тип оплаты';
+    }
 
-  hasItem(productId: string): boolean {
-    return this._items.some(item => item.id === productId);
+    if (!this.email || this.email.trim() === '') {
+      errors.email = 'Укажите email';
+    }
+
+    if (!this.phone || this.phone.trim() === '') {
+      errors.phone = 'Укажите телефон';
+    }
+
+    if (!this.address || this.address.trim() === '') {
+      errors.address = 'Укажите адрес';
+    }
+
+    return errors;
   }
 }
+

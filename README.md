@@ -103,21 +103,21 @@ Presenter - презентер содержит основную логику п
 Описывает структуру объекта товара, который приходит с сервера и используется внутри приложения для отображения в каталоге, корзине и карточке товара.
 
 interface IProduct {
-  id: string;
-  description: string;
-  image: string;
-  title: string;
-  category: string;
-  price: number | null;
+  id: string; - уникальный идентификатор товара
+  description: string; - подробное описание товара
+  image: string; - ссылка на изображение товара
+  title: string; - название товара
+  category: string; - категория товара
+  price: number | null; - цена товара
 }
 #### IBuyer (Покупатель)
 Описывает структуру данных покупателя, которые он вводит при оформлении заказа.
 
 interface IBuyer {
-  payment: TPayment;
-  email: string;
-  phone: string;
-  address: string;
+  payment: TPayment; - способ оплаты
+  email: string; - электронная почта
+  phone: string; - номер телефона
+  address: string; - адрес доставки
 }
 
 ### Модели данных
