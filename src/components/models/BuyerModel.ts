@@ -1,4 +1,4 @@
-import { IBuyer, TPayment, TBuyerValidationErrors } from "../../../types";
+import { IBuyer, TPayment, TBuyerValidationErrors } from "../../types";
 
 export class BuyerModel {
   private payment: TPayment | null = null;

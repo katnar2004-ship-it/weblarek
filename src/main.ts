@@ -1,12 +1,12 @@
 import './scss/styles.scss';
 
-import { CatalogModel } from './components/base/models/CatalogModel.js';
-import { BasketModel } from './components/base/models/BasketModel.js';
-import { BuyerModel } from './components/base/models/BuyerModel.js';
+import { CatalogModel } from './components/models/CatalogModel.js';
+import { BasketModel } from './components/models/BasketModel.js';
+import { BuyerModel } from './components/models/BuyerModel.js';
 import { apiProducts } from './utils/data.js';
 import { Api } from './components/base/Api.js';
 import { API_URL } from './utils/constants.js';
-import { AppApi } from './components/base/AppApi.js';
+import { AppApi } from './components/AppApi.js';
 
 const catalogModel = new CatalogModel();
 const basketModel = new BasketModel();
@@ -154,5 +154,8 @@ appApi.getProducts()
       const foundProduct = catalogModel.getProductById(firstProductId);
       console.log(`Поиск товара по id "${firstProductId}":`, foundProduct?.title);
     }
+  })
+  .catch((error) => {
+    console.error("Ошибка при загрузке товаров:", error);
   });
 
