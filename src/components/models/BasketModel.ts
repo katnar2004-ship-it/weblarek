@@ -1,22 +1,36 @@
 import { IProduct } from "../../types";
+import { IEvents } from '../base/Events';
 
 export class BasketModel {
   private items: IProduct[] = [];
+
+  constructor(protected events: IEvents) {}
 
   getItems(): IProduct[] {
     return this.items;
   }
 
   addItem(product: IProduct): void {
-    this.items.push(product);
+    const exists = this.items.some(item => item.id === product.id);
+    if (!exists) {
+      this.items.push(product);
+      this.emitChange();
+    }
   }
 
   removeItem(productId: string): void {
+    const initialLength = this.items.length;
     this.items = this.items.filter(item => item.id !== productId);
+    if (initialLength !== this.items.length) {
+      this.emitChange();
+    }
   }
 
   clear(): void {
-    this.items = [];
+    if (this.items.length > 0) {
+      this.items = [];
+      this.emitChange();
+    }
   }
 
   getTotalPrice(): number {
@@ -31,5 +45,13 @@ export class BasketModel {
 
   hasItem(productId: string): boolean {
     return this.items.some(item => item.id === productId);
+  }
+
+  private emitChange(): void {
+    this.events.emit('basket:changed', {
+      items: this.items,
+      total: this.getTotalPrice(),
+      count: this.getItemCount()
+    });
   }
 }

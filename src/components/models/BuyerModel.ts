@@ -1,4 +1,5 @@
 import { IBuyer, TPayment, TBuyerValidationErrors } from "../../types";
+import { IEvents } from '../base/Events';
 
 export class BuyerModel {
   private payment: TPayment | null = null;
@@ -6,11 +7,30 @@ export class BuyerModel {
   private phone: string = '';
   private email: string = '';
 
+  constructor(protected events: IEvents) {}
+
   setBuyerField(field: Partial<IBuyer>): void {
-    if (field.payment !== undefined) this.payment = field.payment;
-    if (field.address !== undefined) this.address = field.address;
-    if (field.phone !== undefined) this.phone = field.phone;
-    if (field.email !== undefined) this.email = field.email;
+    let changed = false;
+    if (field.payment !== undefined && this.payment !== field.payment) {
+      this.payment = field.payment;
+      changed = true;
+    }
+    if (field.address !== undefined && this.address !== field.address) {
+      this.address = field.address;
+      changed = true;
+    }
+    if (field.phone !== undefined && this.phone !== field.phone) {
+      this.phone = field.phone;
+      changed = true;
+    }
+    if (field.email !== undefined && this.email !== field.email) {
+      this.email = field.email;
+      changed = true;
+    }
+        
+    if (changed) {
+      this.emitChange();
+    }
   }
 
   getBuyerData(): IBuyer {
@@ -23,10 +43,17 @@ export class BuyerModel {
   }
 
   clear(): void {
+    const wasEmpty = !this.payment && !this.address && !this.phone && !this.email;
+    
     this.payment = null;
     this.address = '';
     this.phone = '';
     this.email = '';
+
+    if (!wasEmpty) {
+      this.emitChange();
+      this.events.emit('buyer:cleared');
+    }
   }
 
   validate(): TBuyerValidationErrors {
@@ -38,10 +65,14 @@ export class BuyerModel {
 
     if (!this.email || this.email.trim() === '') {
       errors.email = 'Укажите email';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email)) {
+      errors.email = 'Неверный формат email';
     }
 
     if (!this.phone || this.phone.trim() === '') {
       errors.phone = 'Укажите телефон';
+    } else if (this.phone.trim().length < 10) {
+      errors.phone = 'Телефон должен содержать минимум 10 цифр';
     }
 
     if (!this.address || this.address.trim() === '') {
@@ -49,6 +80,10 @@ export class BuyerModel {
     }
 
     return errors;
+  }
+
+  private emitChange(): void {
+    this.events.emit('buyer:changed', this.getBuyerData());
   }
 }
 
