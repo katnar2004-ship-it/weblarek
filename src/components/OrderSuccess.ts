@@ -2,11 +2,7 @@ import { Component } from './base/Component';
 import { IEvents } from './base/Events';
 import { ensureElement } from '../utils/utils';
 
-export interface ISuccessData {
-    total: number;
-}
-
-export class OrderSuccess extends Component<ISuccessData> {
+export class OrderSuccess extends Component<{}> {
     protected closeButton: HTMLButtonElement;
     protected totalElement: HTMLElement;
 
@@ -21,12 +17,6 @@ export class OrderSuccess extends Component<ISuccessData> {
     }
 
     setTotal(value: number): void {
-        this.setText(this.totalElement, `Списано ${value} синапсов`);
-    }
-
-    protected setText(element: HTMLElement, value: string): void {
-        if (element) {
-            element.textContent = value;
-        }
+        this.totalElement.textContent = `Списано ${value} синапсов`;
     }
 }

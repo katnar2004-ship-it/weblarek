@@ -3,13 +3,13 @@ import { IEvents } from './base/Events';
 import { ensureElement } from '../utils/utils';
 
 export class Modal extends Component<{}> {
-    protected modalContainer: HTMLElement;
     protected closeButton: HTMLButtonElement;
     protected contentContainer: HTMLElement;
 
+    private _onEscape: (e: KeyboardEvent) => void;
+
     constructor(container: HTMLElement, protected events: IEvents) {
         super(container);
-        this.modalContainer = ensureElement<HTMLElement>('.modal__container', container);
         this.closeButton = ensureElement<HTMLButtonElement>('.modal__close', container);
         this.contentContainer = ensureElement<HTMLElement>('.modal__content', container);
         
@@ -20,22 +20,22 @@ export class Modal extends Component<{}> {
             }
         });
         
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 'Escape' && this.isOpen()) {
+        this._onEscape = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') {
                 this.close();
             }
-        });
+        };
     }
 
     open(): void {
         this.container.classList.add('modal_active');
-        this.events.emit('modal:open');
+        document.addEventListener('keydown', this._onEscape);
     }
 
     close(): void {
         this.container.classList.remove('modal_active');
         this.clearContent();
-        this.events.emit('modal:close');
+        document.removeEventListener('keydown', this._onEscape);
     }
 
     setContent(content: HTMLElement): void {
@@ -45,13 +45,5 @@ export class Modal extends Component<{}> {
 
     clearContent(): void {
         this.contentContainer.innerHTML = '';
-    }
-
-    isOpen(): boolean {
-        return this.container.classList.contains('modal_active');
-    }
-
-    render(): HTMLElement {
-        return this.container;
     }
 }

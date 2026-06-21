@@ -19,70 +19,52 @@ export class FormOrder extends Form<IOrderData> {
         this.cardButton = ensureElement<HTMLButtonElement>('button[name="card"]', container);
         this.cashButton = ensureElement<HTMLButtonElement>('button[name="cash"]', container);
         
-        this._data = { payment: null, address: '' };
-        
         this.addressInput.addEventListener('input', () => {
-            this.onInputChange('address', this.addressInput.value);
-            this.events.emit('order:address-change', { address: this.addressInput.value });
+            this.events.emit('order:address-change', {
+                address: this.addressInput.value
+            });
         });
         
-        this.cardButton.addEventListener('click', () => {
-            this.setPayment('card');
-            this.events.emit('order:payment-change', { payment: 'card' });
-            this.events.emit('order:validate');
+        this.cardButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.cardButton.classList.add('button_alt-active');
+            this.cashButton.classList.remove('button_alt-active');
+            this.events.emit('order:payment-change', {
+                payment: 'card' as TPayment
+            });
         });
         
-        this.cashButton.addEventListener('click', () => {
-            this.setPayment('cash');
-            this.events.emit('order:payment-change', { payment: 'cash' });
-            this.events.emit('order:validate');
+        this.cashButton.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            this.cashButton.classList.add('button_alt-active');
+            this.cardButton.classList.remove('button_alt-active');
+            this.events.emit('order:payment-change', {
+                payment: 'cash' as TPayment
+            });
         });
     }
 
     set payment(value: TPayment | null) {
-        this._data.payment = value;
-        this.updatePaymentButtons();
-        this.disableSubmit(!this.validate());
-        this.events.emit('order:payment-change', { payment: value });
-    }
-
-    get payment(): TPayment | null {
-        return this._data.payment;
+        this.cardButton.classList.toggle('button_alt-active', value === 'card');
+        this.cashButton.classList.toggle('button_alt-active', value === 'cash');
     }
 
     set address(value: string) {
-        this._data.address = value;
-        if (this.addressInput) {
-            this.addressInput.value = value;
-        }
-        this.events.emit('order:address-change', { address: value });
+        this.addressInput.value = value;
     }
 
-    get address(): string {
-        return this._data.address;
-    }
+    protected getFormData(): IOrderData {
+        const activeButton = this.cardButton.classList.contains('button_alt-active')
+            ? 'card'
+            : this.cashButton.classList.contains('button_alt-active')
+                ? 'cash'
+                : null;
 
-    validate(): boolean {
-        return !!(this._data.payment && this._data.address?.trim());
-    }
-
-    protected updatePaymentButtons(): void {
-        this.cardButton.classList.toggle('button_alt-active', this._data.payment === 'card');
-        this.cashButton.classList.toggle('button_alt-active', this._data.payment === 'cash');
-    }
-
-    protected setPayment(value: TPayment): void {
-        this.payment = value;
-    }
-
-    protected onInputChange(field: keyof IOrderData, value: string): void {
-        this.setData({ [field]: value } as Partial<IOrderData>);
-        this.events.emit('order:address-change', { address: value });
-        this.events.emit('order:validate');
-    }
-
-    protected setData(data: Partial<IOrderData>): void {
-        this._data = { ...this._data, ...data };
-        this.disableSubmit(!this.validate());
+        return {
+            payment: activeButton as TPayment | null,
+            address: this.addressInput.value
+        };
     }
 }

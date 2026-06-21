@@ -24,23 +24,14 @@ export class Basket extends Component<IBasketData> {
     }
 
     setItems(items: HTMLElement[]): void {
-        this.listContainer.innerHTML = '';
-        items.forEach(item => {
-            this.listContainer.appendChild(item);
-        });
+        this.listContainer.replaceChildren(...items);
     }
 
     setPrice(value: number): void {
-        this.setText(this.priceElement, `${value} синапсов`);
+        this.priceElement.textContent = `${value} синапсов`;
     }
 
     setButtonState(disabled: boolean): void {
         this.orderButton.disabled = disabled;
-    }
-
-    protected setText(element: HTMLElement, value: string): void {
-        if (element) {
-            element.textContent = value;
-        }
     }
 }

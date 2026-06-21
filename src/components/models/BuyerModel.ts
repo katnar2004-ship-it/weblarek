@@ -11,6 +11,7 @@ export class BuyerModel {
 
   setBuyerField(field: Partial<IBuyer>): void {
     let changed = false;
+
     if (field.payment !== undefined && this.payment !== field.payment) {
       this.payment = field.payment;
       changed = true;
@@ -27,7 +28,7 @@ export class BuyerModel {
       this.email = field.email;
       changed = true;
     }
-        
+
     if (changed) {
       this.emitChange();
     }
@@ -52,7 +53,6 @@ export class BuyerModel {
 
     if (!wasEmpty) {
       this.emitChange();
-      this.events.emit('buyer:cleared');
     }
   }
 
@@ -60,30 +60,62 @@ export class BuyerModel {
     const errors: TBuyerValidationErrors = {};
 
     if (!this.payment) {
-      errors.payment = 'Не выбран тип оплаты';
+      errors.payment = "Не выбран тип оплаты";
     }
 
     if (!this.email || this.email.trim() === '') {
-      errors.email = 'Укажите email';
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(this.email)) {
-      errors.email = 'Неверный формат email';
+      errors.email = "Необходимо указать email";
+    } else if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(this.email)) {
+      errors.email = "Неверный формат email";
     }
 
     if (!this.phone || this.phone.trim() === '') {
-      errors.phone = 'Укажите телефон';
-    } else if (this.phone.trim().length < 10) {
-      errors.phone = 'Телефон должен содержать минимум 10 цифр';
+      errors.phone = "Необходимо указать телефон";
+    } else if (!/^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{10}$/.test(this.phone)) {
+      errors.phone = "Неверный формат телефона";
     }
 
     if (!this.address || this.address.trim() === '') {
-      errors.address = 'Укажите адрес';
+      errors.address = "Необходимо указать адрес";
     }
 
     return errors;
   }
 
+  validateOrder(): Pick<TBuyerValidationErrors, 'payment' | 'address'> {
+    const errors: Pick<TBuyerValidationErrors, 'payment' | 'address'> = {};
+
+    if (!this.payment) {
+      errors.payment = "Не выбран тип оплаты";
+    }
+
+    if (!this.address || this.address.trim() === '') {
+      errors.address = "Необходимо указать адрес";
+    }
+
+    return errors;
+  }
+
+  validateContacts(): Pick<TBuyerValidationErrors, 'email' | 'phone'> {
+    const errors: Pick<TBuyerValidationErrors, 'email' | 'phone'> = {};
+
+    if (!this.email || this.email.trim() === '') {
+      errors.email = "Необходимо указать email";
+    } else if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(this.email)) {
+      errors.email = "Неверный формат email";
+    }
+
+    if (!this.phone || this.phone.trim() === '') {
+      errors.phone = "Необходимо указать телефон";
+    } else if (!/^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{10}$/.test(this.phone)) {
+      errors.phone = "Неверный формат телефона";
+    }
+
+    return errors;
+  }
+  
   private emitChange(): void {
-    this.events.emit('buyer:changed', this.getBuyerData());
+    this.events.emit('buyer:changed');
   }
 }
 

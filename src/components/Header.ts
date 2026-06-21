@@ -2,11 +2,7 @@ import { Component } from './base/Component';
 import { IEvents } from './base/Events';
 import { ensureElement } from '../utils/utils';
 
-export interface IHeaderData {
-    counter: number;
-}
-
-export class Header extends Component<IHeaderData> {
+export class Header extends Component<{}> {
     protected basketButton: HTMLButtonElement;
     protected counterElement: HTMLElement;
 
@@ -21,12 +17,6 @@ export class Header extends Component<IHeaderData> {
     }
 
     setCounter(value: number): void {
-        this.setText(this.counterElement, String(value));
-    }
-
-    protected setText(element: HTMLElement, value: string): void {
-        if (element) {
-            element.textContent = value;
-        }
+        this.counterElement.textContent = String(value);
     }
 }
