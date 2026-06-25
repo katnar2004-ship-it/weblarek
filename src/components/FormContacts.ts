@@ -36,11 +36,4 @@ export class FormContacts extends Form<IContactsData> {
     set phone(value: string) {
         this.phoneInput.value = value;
     }
-
-    protected getFormData(): IContactsData {
-        return {
-            email: this.emailInput.value,
-            phone: this.phoneInput.value
-        };
-    }
 }

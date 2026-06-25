@@ -8,26 +8,15 @@ export class CardCatalog extends Card<IProduct> {
     protected categoryElement: HTMLElement;
     protected imageElement: HTMLImageElement;
 
-    constructor(container: HTMLElement, events: IEvents) {
+    constructor(container: HTMLElement, events: IEvents, actions?: { onClick?: (event: MouseEvent) => void }) {
         super(container, events);
 
         this.categoryElement = ensureElement<HTMLElement>('.card__category', container);
         this.imageElement = ensureElement<HTMLImageElement>('.card__image', container);
 
-        container.addEventListener('click', () => {
-            const id = this.container.dataset.id;
-            if (id) {
-                this.events.emit('card:select', { id });
-            }
-        });
-    }
-
-    set id(value: string) {
-        this.container.dataset.id = value;
-    }
-
-    get id(): string {
-        return this.container.dataset.id ?? '';
+        if (actions?.onClick) {
+            this.container.addEventListener('click', actions.onClick);
+        }
     }
 
     set category(value: string) {

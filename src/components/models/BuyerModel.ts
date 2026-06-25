@@ -60,23 +60,19 @@ export class BuyerModel {
     const errors: TBuyerValidationErrors = {};
 
     if (!this.payment) {
-      errors.payment = "Не выбран тип оплаты";
-    }
-
-    if (!this.email || this.email.trim() === '') {
-      errors.email = "Необходимо указать email";
-    } else if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(this.email)) {
-      errors.email = "Неверный формат email";
-    }
-
-    if (!this.phone || this.phone.trim() === '') {
-      errors.phone = "Необходимо указать телефон";
-    } else if (!/^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{10}$/.test(this.phone)) {
-      errors.phone = "Неверный формат телефона";
+      errors.payment = 'Необходимо выбрать способ оплаты';
     }
 
     if (!this.address || this.address.trim() === '') {
-      errors.address = "Необходимо указать адрес";
+      errors.address = 'Необходимо указать адрес';
+    }
+
+    if (!this.email || this.email.trim() === '') {
+      errors.email = 'Необходимо указать email';
+    }
+
+    if (!this.phone || this.phone.trim() === '') {
+      errors.phone = 'Необходимо указать телефон';
     }
 
     return errors;
@@ -100,15 +96,11 @@ export class BuyerModel {
     const errors: Pick<TBuyerValidationErrors, 'email' | 'phone'> = {};
 
     if (!this.email || this.email.trim() === '') {
-      errors.email = "Необходимо указать email";
-    } else if (!/^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$/.test(this.email)) {
-      errors.email = "Неверный формат email";
+      errors.email = 'Необходимо указать email';
     }
 
     if (!this.phone || this.phone.trim() === '') {
-      errors.phone = "Необходимо указать телефон";
-    } else if (!/^((8|\+7)[\- ]?)?(\(?\d{3}\)?[\- ]?)?[\d\- ]{10}$/.test(this.phone)) {
-      errors.phone = "Неверный формат телефона";
+      errors.phone = 'Необходимо указать телефон';
     }
 
     return errors;

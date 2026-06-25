@@ -18,6 +18,7 @@ import { Basket } from './components/Basket';
 import { FormOrder } from './components/FormOrder';
 import { FormContacts } from './components/FormContacts';
 import { OrderSuccess } from './components/OrderSuccess';
+import { IProduct } from './types/index.js'; 
 
 const events = new EventEmitter();
 
@@ -80,8 +81,9 @@ events.on('catalog:changed', () => {
   const products = catalogModel.getProducts();
   const cards = products.map(product => {
     const cardElement = cloneTemplate<HTMLElement>(cardCatalogTemplate);
-    const card = new CardCatalog(cardElement, events);
-    card.id = product.id;
+    const card = new CardCatalog(cardElement, events, {
+      onClick: () => events.emit('card:select', product)
+    });
     card.title = product.title;
     card.price = product.price;
     card.category = product.category;
@@ -148,6 +150,9 @@ events.on('buyer:changed', () => {
   const isValid = Object.keys(errors).length === 0;
 
   if (isOrderForm) {
+    const buyerData = buyerModel.getBuyerData();
+    orderForm.payment = buyerData.payment;
+
     orderForm.setErrors(errors);
     orderForm.disableSubmit(!isValid);
   } else {
@@ -157,11 +162,8 @@ events.on('buyer:changed', () => {
 });
 
 // выбор товара в каталоге
-events.on('card:select', (data: { id: string }) => {
-  const product = catalogModel.getProductById(data.id);
-  if (product) {
-    catalogModel.setPreview(product);
-  }
+events.on('card:select', (product: IProduct) => {
+  catalogModel.setPreview(product);
 });
 
 // добавление товара в корзину из preview

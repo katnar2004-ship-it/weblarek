@@ -15,7 +15,7 @@ export abstract class Form<T extends object> extends Component<T> {
         
         this.form.addEventListener('submit', (e) => {
             e.preventDefault();
-            events.emit(`${this.form.name}:submit`, this.getFormData());
+            events.emit(`${this.form.name}:submit`);
         });
     }
 

@@ -28,8 +28,6 @@ export class FormOrder extends Form<IOrderData> {
         this.cardButton.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            this.cardButton.classList.add('button_alt-active');
-            this.cashButton.classList.remove('button_alt-active');
             this.events.emit('order:payment-change', {
                 payment: 'card' as TPayment
             });
@@ -38,8 +36,6 @@ export class FormOrder extends Form<IOrderData> {
         this.cashButton.addEventListener('click', (e) => {
             e.preventDefault();
             e.stopPropagation();
-            this.cashButton.classList.add('button_alt-active');
-            this.cardButton.classList.remove('button_alt-active');
             this.events.emit('order:payment-change', {
                 payment: 'cash' as TPayment
             });
@@ -53,18 +49,5 @@ export class FormOrder extends Form<IOrderData> {
 
     set address(value: string) {
         this.addressInput.value = value;
-    }
-
-    protected getFormData(): IOrderData {
-        const activeButton = this.cardButton.classList.contains('button_alt-active')
-            ? 'card'
-            : this.cashButton.classList.contains('button_alt-active')
-                ? 'cash'
-                : null;
-
-        return {
-            payment: activeButton as TPayment | null,
-            address: this.addressInput.value
-        };
     }
 }
