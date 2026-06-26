@@ -61,8 +61,10 @@ const renderBasketItems = () => {
     
   const cards = basketItems.map((item, index) => {
     const cardElement = cloneTemplate<HTMLElement>(cardBasketTemplate);
-    const card = new CardBasket(cardElement, events);
-    card.id = item.id;
+    const card = new CardBasket(cardElement, events, {
+      onClick: () => events.emit('card:remove-from-basket', { id: item.id })
+    });
+
     card.title = item.title;
     card.price = item.price;
     card.index = index + 1;
@@ -74,6 +76,17 @@ const renderBasketItems = () => {
   basket.setButtonState(basketModel.getItemCount() === 0);
 
   return basket.render();
+};
+
+// фильтрация ошибок
+const filterErrors = (allErrors: Record<string, string>, fields: string[]) => {
+  const errors: Record<string, string> = {};
+  fields.forEach(field => {
+    if (allErrors[field]) {
+      errors[field] = allErrors[field];
+    }
+  });
+  return errors;
 };
 
 // обновление каталога
@@ -97,7 +110,6 @@ events.on('catalog:changed', () => {
 events.on('catalog:preview-changed', () => {
   const product = catalogModel.getPreview();
   if (!product) return;
-  cardPreview.id = product.id;
   cardPreview.title = product.title;
   cardPreview.price = product.price;
   cardPreview.category = product.category;
@@ -116,7 +128,7 @@ events.on('catalog:preview-changed', () => {
     cardPreview.buttonText = "Купить";
     cardPreview.disableButton(false);
   }
-   
+
   modal.setContent(cardPreview.render());
   modal.open();
 });
@@ -125,40 +137,26 @@ events.on('catalog:preview-changed', () => {
 events.on('basket:changed', () => {
   header.setCounter(basketModel.getItemCount());
   renderBasketItems();
-
-  const isBasketOpen = modalElement.querySelector('.basket');
-  const isPreviewOpen = modalElement.querySelector('.card__title');
-
-  if (isBasketOpen) {
-    modal.setContent(basket.render());
-  } else if (isPreviewOpen) {
-    modal.close();
-  }
 });
 
-//
+// обновление покупателя
 events.on('buyer:changed', () => {
-  const currentForm = modalElement.querySelector('form') as any;
-  if (!currentForm) return;
+  const buyerData = buyerModel.getBuyerData();
 
-  const isOrderForm = currentForm.name === 'order';
+  orderForm.payment = buyerData.payment;
+  orderForm.address = buyerData.address;
+  contactsForm.email = buyerData.email;
+  contactsForm.phone = buyerData.phone;
 
-  const errors = isOrderForm
-    ? buyerModel.validateOrder()
-    : buyerModel.validateContacts();
+  const allErrors = buyerModel.validate();
 
-  const isValid = Object.keys(errors).length === 0;
+  const orderErrors = filterErrors(allErrors, ['payment', 'address']);
+  orderForm.setErrors(orderErrors);
+  orderForm.disableSubmit(Object.keys(orderErrors).length > 0);
 
-  if (isOrderForm) {
-    const buyerData = buyerModel.getBuyerData();
-    orderForm.payment = buyerData.payment;
-
-    orderForm.setErrors(errors);
-    orderForm.disableSubmit(!isValid);
-  } else {
-    contactsForm.setErrors(errors);
-    contactsForm.disableSubmit(!isValid);
-  }
+  const contactsErrors = filterErrors(allErrors, ['email', 'phone']);
+  contactsForm.setErrors(contactsErrors);
+  contactsForm.disableSubmit(Object.keys(contactsErrors).length > 0);
 });
 
 // выбор товара в каталоге
@@ -176,6 +174,8 @@ events.on('card:add-to-basket', () => {
   } else {
     basketModel.addItem(product);
   }
+
+  modal.close();
 });
 
 // удаление товара из корзины
@@ -191,28 +191,22 @@ events.on('header:basket-click', () => {
 
 // оформление заказа
 events.on('basket:order', () => {
-  const buyerData = buyerModel.getBuyerData();
-  orderForm.payment = buyerData.payment;
-  orderForm.address = buyerData.address;
-
   modal.setContent(orderForm.render());
   modal.open();
 
-  const errors = buyerModel.validateOrder();
+  const allErrors = buyerModel.validate();
+  const errors = filterErrors(allErrors, ['payment', 'address']);
   orderForm.setErrors(errors);
   orderForm.disableSubmit(Object.keys(errors).length > 0);
 });
 
 // форма заказа
 events.on('order:submit', () => {
-  const buyerData = buyerModel.getBuyerData();
-   
-  contactsForm.email = buyerData.email;
-  contactsForm.phone = buyerData.phone;
   modal.setContent(contactsForm.render());
   modal.open();
 
-  const errors = buyerModel.validateContacts();
+  const allErrors = buyerModel.validate();
+  const errors = filterErrors(allErrors, ['email', 'phone']);
   contactsForm.setErrors(errors);
   contactsForm.disableSubmit(Object.keys(errors).length > 0);
 });

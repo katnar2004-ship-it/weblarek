@@ -12,14 +12,6 @@ export abstract class Card<T extends IProduct> extends Component<T> {
         this.titleElement = ensureElement<HTMLElement>('.card__title', container);
         this.priceElement = ensureElement<HTMLElement>('.card__price', container);
     }
-
-    set id(value: string) {
-        this.container.dataset.id = value;
-    }
-
-    get id(): string {
-        return this.container.dataset.id ?? '';
-    }
     
     set title(value: string) {
         this.titleElement.textContent = value;

@@ -11,17 +11,14 @@ export class CardBasket extends Card<IProduct> {
     protected indexElement: HTMLElement;
     protected deleteButton: HTMLButtonElement;
 
-    constructor(container: HTMLElement, protected events: IEvents) {
+    constructor(container: HTMLElement, protected events: IEvents, actions?: { onClick?: (event: MouseEvent) => void }) {
         super(container, events);
         this.indexElement = ensureElement<HTMLElement>('.basket__item-index', container);
         this.deleteButton = ensureElement<HTMLButtonElement>('.basket__item-delete', container);
         
-        this.deleteButton.addEventListener('click', () => {
-            const id = this.container.dataset.id;
-            if (id) {
-                this.events.emit('card:remove-from-basket', { id });
-            }
-        });
+        if (actions?.onClick) {
+            this.deleteButton.addEventListener('click', actions.onClick);
+        }
     }
 
     set index(value: number) {

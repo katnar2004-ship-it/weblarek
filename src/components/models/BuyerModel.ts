@@ -77,34 +77,6 @@ export class BuyerModel {
 
     return errors;
   }
-
-  validateOrder(): Pick<TBuyerValidationErrors, 'payment' | 'address'> {
-    const errors: Pick<TBuyerValidationErrors, 'payment' | 'address'> = {};
-
-    if (!this.payment) {
-      errors.payment = "Не выбран тип оплаты";
-    }
-
-    if (!this.address || this.address.trim() === '') {
-      errors.address = "Необходимо указать адрес";
-    }
-
-    return errors;
-  }
-
-  validateContacts(): Pick<TBuyerValidationErrors, 'email' | 'phone'> {
-    const errors: Pick<TBuyerValidationErrors, 'email' | 'phone'> = {};
-
-    if (!this.email || this.email.trim() === '') {
-      errors.email = 'Необходимо указать email';
-    }
-
-    if (!this.phone || this.phone.trim() === '') {
-      errors.phone = 'Необходимо указать телефон';
-    }
-
-    return errors;
-  }
   
   private emitChange(): void {
     this.events.emit('buyer:changed');
